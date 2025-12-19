@@ -10,9 +10,6 @@ import { formatCurrency, slugify } from '@/lib/utils'
 import { uploadProductImage } from '@/lib/supabase/storage'
 import { User } from '@/types'
 
-// Cloudflare Pages requires edge runtime for dynamic routes
-export const runtime = 'edge'
-
 interface AdminProductDetail {
   id: string
   name: string

@@ -12,6 +12,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Star, ShoppingCart, Minus, Plus, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
+// Cloudflare Pages requires edge runtime for dynamic routes
+export const runtime = 'edge'
+
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()

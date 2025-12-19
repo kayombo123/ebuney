@@ -9,12 +9,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_-9yj6Ybd0hiu0KwvHmD1lg_wZzlkoIX"
 
 [env.production]
 name = "ebuney"
-[vars]
-NEXT_PUBLIC_SUPABASE_URL = "https://grxyvzpapamomhfipjfk.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_-9yj6Ybd0hiu0KwvHmD1lg_wZzlkoIX"
 
 [env.preview]
 name = "ebuney-preview"
-[vars]
-NEXT_PUBLIC_SUPABASE_URL = "https://grxyvzpapamomhfipjfk.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_-9yj6Ybd0hiu0KwvHmD1lg_wZzlkoIX"

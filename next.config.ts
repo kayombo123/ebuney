@@ -10,11 +10,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // For Cloudflare Pages, we need to allow the build to continue
-  // even if some pages fail during static generation
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
+  // Provide default env vars during build if not set
+  env: {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grxyvzpapamomhfipjfk.supabase.co',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_-9yj6Ybd0hiu0KwvHmD1lg_wZzlkoIX',
   },
 };
 

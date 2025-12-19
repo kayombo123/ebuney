@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Package, Plus, TrendingUp, DollarSign } from 'lucide-react'
 
+// Force dynamic rendering to prevent static generation during build
+export const dynamic = 'force-dynamic'
+
 export default function SellerDashboardPage() {
   const [seller, setSeller] = useState<{
     id: string

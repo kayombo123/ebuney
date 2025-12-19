@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Users, Store, Package, DollarSign, CheckCircle, XCircle } from 'lucide-react'
 
+// Force dynamic rendering to prevent static generation during build
+export const dynamic = 'force-dynamic'
+
 export default function AdminDashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [stats, setStats] = useState({

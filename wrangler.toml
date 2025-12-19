@@ -5,7 +5,7 @@ pages_build_output_dir = ".vercel/output/static"
 # Shared build-time environment variables for Pages builds
 [vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://grxyvzpapamomhfipjfk.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdyeHl2enBhcGFtb21oZmlwamZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5OTU0NzUsImV4cCI6MjA4MTU3MTQ3NX0.ra5d_dWmFaGojKWsl0RqCSz7MzEyZu5P8lVp1GQ5ywE"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_-9yj6Ybd0hiu0KwvHmD1lg_wZzlkoIX"
 
 [env.production]
 name = "ebuney"

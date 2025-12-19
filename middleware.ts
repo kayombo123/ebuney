@@ -8,13 +8,13 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  // During build time, provide placeholder values to prevent build failures
-  // These will be replaced with actual values at runtime from Cloudflare env vars
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1wbGFjZWhvbGRlciIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDUxOTIwMDAsImV4cCI6MTk2MDc2ODAwMH0.placeholder'
+  // Get env vars from Cloudflare Pages environment or use defaults
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grxyvzpapamomhfipjfk.supabase.co'
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_-9yj6Ybd0hiu0KwvHmD1lg_wZzlkoIX'
 
-  // Skip auth checks during build (when using placeholder values)
-  if (supabaseUrl.includes('placeholder') || supabaseAnonKey.includes('placeholder')) {
+  // If env vars are still missing, skip auth checks
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Supabase env vars not found, skipping auth checks')
     return response
   }
 
@@ -41,9 +41,14 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    user = authUser
+  } catch (error) {
+    // If auth check fails, continue without user (non-blocking)
+    console.warn('Auth check failed in middleware:', error)
+  }
 
   // Protect admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {

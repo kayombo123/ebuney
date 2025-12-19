@@ -5,10 +5,12 @@ import { Database } from '@/types/database'
 export async function createClient() {
   const cookieStore = await cookies()
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // Get env vars from Cloudflare Pages environment or fallback to defaults
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grxyvzpapamomhfipjfk.supabase.co'
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_-9yj6Ybd0hiu0KwvHmD1lg_wZzlkoIX'
 
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables')
     throw new Error(
       'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY'
     )

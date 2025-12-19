@@ -76,6 +76,7 @@ export default function HomePage() {
     if (!cart) {
       const { data: newCart } = await supabase
         .from('carts')
+        // @ts-expect-error - Supabase type inference limitation with insert operations
         .insert({ user_id: user.id })
         .select()
         .single()
@@ -83,10 +84,12 @@ export default function HomePage() {
     }
 
     if (cart) {
+      const userCart = cart as { id: string }
       const { error } = await supabase
         .from('cart_items')
+        // @ts-expect-error - Supabase type inference limitation with upsert operations
         .upsert({
-          cart_id: cart.id,
+          cart_id: userCart.id,
           product_id: productId,
           quantity: 1,
         })

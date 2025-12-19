@@ -115,7 +115,8 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {user.role === 'seller' && (
+        {/* Treat admin as the owner-seller; only admins see the seller dashboard link */}
+        {user.role === 'admin' && (
           <Card className="mt-8">
             <CardHeader>
               <CardTitle>Seller Dashboard</CardTitle>

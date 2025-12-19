@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Seller, Product, Order } from '@/types'
+import { Product, Order } from '@/types'
 import { formatCurrency } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,12 @@ import { Badge } from '@/components/ui/badge'
 import { Package, Plus, TrendingUp, DollarSign } from 'lucide-react'
 
 export default function SellerDashboardPage() {
-  const [seller, setSeller] = useState<Seller | null>(null)
+  const [seller, setSeller] = useState<{
+    id: string
+    business_name: string
+    business_description: string | null
+    is_verified: boolean
+  } | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [recentOrders, setRecentOrders] = useState<Order[]>([])
   const [stats, setStats] = useState({
@@ -49,13 +54,20 @@ export default function SellerDashboardPage() {
         return
       }
 
-      setSeller(sellerData as Seller)
+      setSeller(
+        sellerData as {
+          id: string
+          business_name: string
+          business_description: string | null
+          is_verified: boolean
+        },
+      )
 
       // Fetch products
       const { data: productsData } = await supabase
         .from('products')
         .select('*')
-        .eq('seller_id', sellerData.id)
+        .eq('seller_id', (sellerData as { id: string }).id)
         .order('created_at', { ascending: false })
         .limit(10)
 
@@ -65,7 +77,7 @@ export default function SellerDashboardPage() {
       const { data: ordersData } = await supabase
         .from('orders')
         .select('*')
-        .eq('seller_id', sellerData.id)
+        .eq('seller_id', (sellerData as { id: string }).id)
         .order('created_at', { ascending: false })
         .limit(10)
 
@@ -75,26 +87,30 @@ export default function SellerDashboardPage() {
       const { count: productsCount } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
-        .eq('seller_id', sellerData.id)
+        .eq('seller_id', (sellerData as { id: string }).id)
 
       const { count: ordersCount } = await supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
-        .eq('seller_id', sellerData.id)
+        .eq('seller_id', (sellerData as { id: string }).id)
 
       const { count: pendingCount } = await supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
-        .eq('seller_id', sellerData.id)
+        .eq('seller_id', (sellerData as { id: string }).id)
         .in('status', ['pending', 'confirmed', 'processing'])
 
       const { data: revenueData } = await supabase
         .from('orders')
-        .select('total_amount')
-        .eq('seller_id', sellerData.id)
+        .select('final_price')
+        .eq('seller_id', (sellerData as { id: string }).id)
         .eq('status', 'delivered')
 
-      const totalRevenue = revenueData?.reduce((sum, order) => sum + order.total_amount, 0) || 0
+      const totalRevenue =
+        revenueData?.reduce(
+          (sum: number, order: { final_price: number }) => sum + order.final_price,
+          0,
+        ) || 0
 
       setStats({
         totalProducts: productsCount || 0,
@@ -209,15 +225,24 @@ export default function SellerDashboardPage() {
               ) : (
                 <div className="space-y-4">
                   {products.map((product) => (
-                    <div key={product.id} className="flex items-center justify-between pb-4 border-b border-gray-200 last:border-0">
+                    <div
+                      key={product.id}
+                      className="flex items-center justify-between pb-4 border-b border-gray-200 last:border-0"
+                    >
                       <div>
                         <h3 className="font-medium">{product.name}</h3>
                         <p className="text-sm text-gray-600">
-                          {formatCurrency(product.price, product.currency)} • Stock: {product.stock_quantity}
+                          {formatCurrency(
+                            (product as any).price ||
+                              (product as any).buy_it_now_price ||
+                              product.starting_bid,
+                            product.currency,
+                          )}{' '}
+                          • Stock
                         </p>
                       </div>
-                      <Badge variant={product.is_active ? 'success' : 'default'}>
-                        {product.is_active ? 'Active' : 'Inactive'}
+                      <Badge variant={'success'}>
+                        Active
                       </Badge>
                     </div>
                   ))}
@@ -246,7 +271,7 @@ export default function SellerDashboardPage() {
                       <div>
                         <h3 className="font-medium">Order #{order.order_number}</h3>
                         <p className="text-sm text-gray-600">
-                          {formatCurrency(order.total_amount, order.currency)}
+                          {formatCurrency(order.final_price, order.currency)}
                         </p>
                       </div>
                       <Badge>{order.status}</Badge>

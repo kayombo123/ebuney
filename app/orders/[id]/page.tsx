@@ -44,7 +44,7 @@ export default function OrderDetailPage() {
           *,
           seller:sellers(*)
         `)
-        .eq('id', params.id)
+        .eq('id', params.id as string)
         .eq('buyer_id', user.id)
         .single()
 
@@ -59,7 +59,7 @@ export default function OrderDetailPage() {
             *,
             product:products(*)
           `)
-          .eq('order_id', params.id)
+          .eq('order_id', params.id as string)
 
         if (itemsData) setOrderItems(itemsData as OrderItem[])
 
@@ -67,7 +67,7 @@ export default function OrderDetailPage() {
         const { data: paymentData } = await supabase
           .from('payments')
           .select('*')
-          .eq('order_id', params.id)
+          .eq('order_id', params.id as string)
           .single()
 
         if (paymentData) setPayment(paymentData as Payment)
@@ -76,7 +76,7 @@ export default function OrderDetailPage() {
         const { data: deliveryData } = await supabase
           .from('deliveries')
           .select('*')
-          .eq('order_id', params.id)
+          .eq('order_id', params.id as string)
           .single()
 
         if (deliveryData) setDelivery(deliveryData as Delivery)
@@ -230,31 +230,13 @@ export default function OrderDetailPage() {
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>{formatCurrency(order.subtotal, order.currency)}</span>
+                  <span>{formatCurrency(order.final_price, order.currency)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  <span>
-                    {order.shipping_cost === 0
-                      ? 'Free'
-                      : formatCurrency(order.shipping_cost, order.currency)}
-                  </span>
-                </div>
-                {order.tax_amount > 0 && (
-                  <div className="flex justify-between text-gray-600">
-                    <span>Tax</span>
-                    <span>{formatCurrency(order.tax_amount, order.currency)}</span>
-                  </div>
-                )}
-                {order.discount_amount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
-                    <span>-{formatCurrency(order.discount_amount, order.currency)}</span>
-                  </div>
-                )}
+                {/* Shipping, tax, and discounts are not modeled on the Order type for now.
+                    We treat the order's final_price as the total the buyer pays. */}
                 <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span>{formatCurrency(order.total_amount, order.currency)}</span>
+                  <span>{formatCurrency(order.final_price, order.currency)}</span>
                 </div>
               </CardContent>
             </Card>

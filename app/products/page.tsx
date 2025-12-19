@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSearchParams } from 'next/navigation'
 import { Product, Category } from '@/types'
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search, X } from 'lucide-react'
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -116,6 +116,7 @@ export default function ProductsPage() {
     if (!cart) {
       const { data: newCart } = await supabase
         .from('carts')
+        // @ts-expect-error - Supabase type inference limitation with insert operations
         .insert({ user_id: user.id })
         .select()
         .single()
@@ -123,10 +124,12 @@ export default function ProductsPage() {
     }
 
     if (cart) {
+      const userCart = cart as { id: string }
       const { error } = await supabase
         .from('cart_items')
+        // @ts-expect-error - Supabase type inference limitation with upsert operations
         .upsert({
-          cart_id: cart.id,
+          cart_id: userCart.id,
           product_id: productId,
           quantity: 1,
         })
@@ -257,6 +260,14 @@ export default function ProductsPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 py-8" />}>
+      <ProductsContent />
+    </Suspense>
   )
 }
 

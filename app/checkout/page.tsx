@@ -208,7 +208,7 @@ export default function CheckoutPage() {
         return order
       })
 
-      const orders = await Promise.all(orderPromises)
+      const orders = (await Promise.all(orderPromises)) as Array<{ order_number: string }>
 
       // Clear cart
       const { data: cart } = await supabase
@@ -218,13 +218,15 @@ export default function CheckoutPage() {
         .single()
 
       if (cart) {
+        const userCart = cart as { id: string }
         await supabase
           .from('cart_items')
           .delete()
-          .eq('cart_id', cart.id)
+          .eq('cart_id', userCart.id)
       }
 
-      router.push(`/orders/success?order=${orders[0]?.order_number}`)
+      const firstOrderNumber = orders[0]?.order_number
+      router.push(firstOrderNumber ? `/orders/success?order=${firstOrderNumber}` : '/orders')
     } catch (error: any) {
       console.error('Error placing order:', error)
       alert(error.message || 'Failed to place order')
@@ -258,7 +260,9 @@ export default function CheckoutPage() {
   }
 
   const subtotal = cartItems.reduce((sum, item) => {
-    return sum + (item.product?.price || 0) * item.quantity
+    const product = item.product as any
+    const price = product?.price || product?.buy_it_now_price || product?.starting_bid || 0
+    return sum + price * item.quantity
   }, 0)
 
   const shipping = 0
@@ -391,16 +395,19 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 mb-6">
-                  {cartItems.map((item) => (
+                  {cartItems.map((item) => {
+                    const product = item.product as any
+                    const price = product?.price || product?.buy_it_now_price || product?.starting_bid || 0
+                    return (
                     <div key={item.id} className="flex justify-between text-sm">
                       <span className="text-gray-600">
                         {item.product?.name} × {item.quantity}
                       </span>
                       <span className="font-medium">
-                        {formatCurrency((item.product?.price || 0) * item.quantity)}
+                        {formatCurrency(price * item.quantity)}
                       </span>
                     </div>
-                  ))}
+                  )})}
                   <div className="border-t border-gray-200 pt-3 space-y-2">
                     <div className="flex justify-between text-gray-600">
                       <span>Subtotal</span>

@@ -1,12 +1,13 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderNumber = searchParams.get('order')
@@ -35,13 +36,23 @@ export default function OrderSuccessPage() {
                 <Button size="lg">View My Orders</Button>
               </Link>
               <Link href="/products">
-                <Button variant="outline" size="lg">Continue Shopping</Button>
+                <Button variant="outline" size="lg">
+                  Continue Shopping
+                </Button>
               </Link>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 py-12" />}>
+      <OrderSuccessContent />
+    </Suspense>
   )
 }
 

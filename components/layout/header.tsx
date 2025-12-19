@@ -44,11 +44,12 @@ export function Header() {
       .single()
 
     if (cart) {
+      const userCart = cart as { id: string }
       const { count } = await supabase
         .from('cart_items')
         .select('*', { count: 'exact', head: true })
-        .eq('cart_id', cart.id)
-      
+        .eq('cart_id', userCart.id)
+
       setCartCount(count || 0)
     }
   }

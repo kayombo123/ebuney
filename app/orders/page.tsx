@@ -100,21 +100,9 @@ export default function OrdersPage() {
                       <p className="text-sm text-gray-600 mb-2">
                         Placed on {formatDate(order.created_at)}
                       </p>
-                      {order.seller && (
-                        <p className="text-sm text-gray-600 mb-2">
-                          Seller: {order.seller.business_name}
-                        </p>
-                      )}
                       <p className="text-lg font-bold">
-                        Total: {formatCurrency(order.total_amount, order.currency)}
+                        Total: {formatCurrency(order.final_price, order.currency)}
                       </p>
-                      {order.items && order.items.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-600">
-                            {order.items.length} item(s)
-                          </p>
-                        </div>
-                      )}
                     </div>
                     <div className="flex gap-2">
                       <Link href={`/orders/${order.id}`}>

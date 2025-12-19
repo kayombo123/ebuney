@@ -17,10 +17,14 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const imageUrl =
     product.images && product.images.length > 0 ? product.images[0] : '/placeholder-product.jpg'
 
+  const productValue = product as any
+  const basePrice =
+    productValue.price || productValue.buy_it_now_price || productValue.starting_bid || 0
+
   const discountPercentage =
-    product.compare_at_price && product.price < product.compare_at_price
+    productValue.compare_at_price && basePrice < productValue.compare_at_price
       ? Math.round(
-          ((product.compare_at_price - product.price) / product.compare_at_price) * 100,
+          ((productValue.compare_at_price - basePrice) / productValue.compare_at_price) * 100,
         )
       : null
 
@@ -47,11 +51,6 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           )}
         </div>
         <div className="p-3">
-          {product.seller && (
-            <p className="text-[11px] text-gray-500 mb-0.5 truncate">
-              {product.seller.business_name}
-            </p>
-          )}
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 min-h-[2.5rem]">
             {product.name}
           </h3>
@@ -66,22 +65,18 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           )}
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-base font-semibold text-gray-900">
-              {formatCurrency(product.price, product.currency)}
+              {formatCurrency(basePrice, product.currency)}
             </span>
-            {product.compare_at_price && product.compare_at_price > product.price && (
+            {productValue.compare_at_price && productValue.compare_at_price > basePrice && (
               <span className="text-[11px] text-gray-400 line-through">
-                {formatCurrency(product.compare_at_price, product.currency)}
+                {formatCurrency(productValue.compare_at_price, product.currency)}
               </span>
             )}
           </div>
-          {product.stock_quantity > 0 ? (
-            <p className="text-[11px] text-green-600 mt-1">In stock</p>
-          ) : (
-            <p className="text-[11px] text-red-600 mt-1">Out of stock</p>
-          )}
+          <p className="text-[11px] text-green-600 mt-1">In stock</p>
         </div>
       </Link>
-      {product.stock_quantity > 0 && onAddToCart && (
+      {onAddToCart && (
         <div className="px-3 pb-3">
           <Button
             onClick={(e) => {

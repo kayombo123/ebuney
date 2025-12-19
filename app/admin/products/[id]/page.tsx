@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, slugify } from '@/lib/utils'
 import { uploadProductImage } from '@/lib/supabase/storage'
+import { User } from '@/types'
 
 interface AdminProductDetail {
   id: string
@@ -62,7 +63,8 @@ export default function AdminEditProductPage() {
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.role !== 'admin') {
+    const userProfile = profile as User | null
+    if (!userProfile || userProfile.role !== 'admin') {
       router.push('/dashboard')
       return
     }
@@ -151,6 +153,7 @@ export default function AdminEditProductPage() {
 
       const { error: updateError } = await supabase
         .from('products')
+        // @ts-expect-error - Supabase type inference limitation with update operations
         .update({
           name,
           slug: updatedSlug,

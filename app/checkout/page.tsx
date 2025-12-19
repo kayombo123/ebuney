@@ -50,13 +50,14 @@ export default function CheckoutPage() {
         .single()
 
       if (cart) {
+        const cartData = cart as { id: string }
         const { data: items } = await supabase
           .from('cart_items')
           .select(`
             *,
             product:products(*)
           `)
-          .eq('cart_id', cart.id)
+          .eq('cart_id', cartData.id)
 
         if (items && items.length > 0) {
           setCartItems(items as (CartItem & { product?: Product })[])
@@ -81,10 +82,11 @@ export default function CheckoutPage() {
         .single()
 
       if (profile) {
+        const userProfile = profile as { full_name: string | null; phone: string | null } | null
         setShippingAddress(prev => ({
           ...prev,
-          full_name: profile.full_name || '',
-          phone: profile.phone || '',
+          full_name: userProfile?.full_name || '',
+          phone: userProfile?.phone || '',
         }))
       }
     }
@@ -101,8 +103,9 @@ export default function CheckoutPage() {
       // Group cart items by seller
       const itemsBySeller = new Map<string, typeof cartItems>()
       for (const item of cartItems) {
-        if (!item.product?.seller_id) continue
-        const sellerId = item.product.seller_id
+        const product = item.product as any
+        if (!product?.seller_id) continue
+        const sellerId = product.seller_id
         if (!itemsBySeller.has(sellerId)) {
           itemsBySeller.set(sellerId, [])
         }
@@ -112,7 +115,9 @@ export default function CheckoutPage() {
       // Create orders for each seller
       const orderPromises = Array.from(itemsBySeller.entries()).map(async ([sellerId, items]) => {
         const subtotal = items.reduce((sum, item) => {
-          return sum + (item.product?.price || 0) * item.quantity
+          const product = item.product as any
+          const price = product?.price || product?.buy_it_now_price || product?.starting_bid || 0
+          return sum + price * item.quantity
         }, 0)
 
         const orderNumber = generateOrderNumber()
@@ -124,6 +129,7 @@ export default function CheckoutPage() {
         // Create order
         const { data: order, error: orderError } = await supabase
           .from('orders')
+          // @ts-expect-error - Supabase type inference limitation with insert operations
           .insert({
             order_number: orderNumber,
             buyer_id: user.id,
@@ -144,20 +150,27 @@ export default function CheckoutPage() {
         if (orderError) throw orderError
 
         // Create order items
-        const orderItems = items.map(item => ({
-          order_id: order.id,
-          product_id: item.product_id,
-          variant_id: item.variant_id,
-          product_name: item.product?.name || '',
-          product_sku: item.product?.sku || null,
-          variant_name: null,
-          price: item.product?.price || 0,
-          quantity: item.quantity,
-          subtotal: (item.product?.price || 0) * item.quantity,
-        }))
+        const orderData = order as { id: string } | null
+        if (!orderData) throw new Error('Failed to create order')
+        const orderItems = items.map(item => {
+          const product = item.product as any
+          const price = product?.price || product?.buy_it_now_price || product?.starting_bid || 0
+          return {
+            order_id: orderData.id,
+            product_id: item.product_id,
+            variant_id: item.variant_id,
+            product_name: item.product?.name || '',
+            product_sku: item.product?.sku || null,
+            variant_name: null,
+            price,
+            quantity: item.quantity,
+            subtotal: price * item.quantity,
+          }
+        })
 
         const { error: itemsError } = await supabase
           .from('order_items')
+          // @ts-expect-error - Supabase type inference limitation with insert operations
           .insert(orderItems)
 
         if (itemsError) throw itemsError
@@ -165,8 +178,9 @@ export default function CheckoutPage() {
         // Create payment record
         const { error: paymentError } = await supabase
           .from('payments')
+          // @ts-expect-error - Supabase type inference limitation with insert operations
           .insert({
-            order_id: order.id,
+            order_id: orderData.id,
             payment_method: paymentMethod,
             status: paymentMethod === 'cash_on_delivery' ? 'pending' : 'pending',
             amount: totalAmount,
@@ -178,8 +192,9 @@ export default function CheckoutPage() {
         // Create delivery record
         const { error: deliveryError } = await supabase
           .from('deliveries')
+          // @ts-expect-error - Supabase type inference limitation with insert operations
           .insert({
-            order_id: order.id,
+            order_id: orderData.id,
             delivery_method: 'platform_courier',
             status: 'pending',
             delivery_address: shippingAddress as any,

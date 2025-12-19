@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { slugify } from '@/lib/utils'
 import { uploadProductImage } from '@/lib/supabase/storage'
+import { User } from '@/types'
 
 export default function AdminNewProductPage() {
   const router = useRouter()
@@ -45,7 +46,8 @@ export default function AdminNewProductPage() {
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.role !== 'admin') {
+    const userProfile = profile as User | null
+    if (!userProfile || userProfile.role !== 'admin') {
       router.push('/dashboard')
       return
     }
@@ -94,12 +96,13 @@ export default function AdminNewProductPage() {
       }
 
       // Find owner seller profile (assumes admin user is the seller)
-      const { data: seller } = await supabase
+      const { data: sellerData } = await supabase
         .from('sellers')
         .select('id')
         .eq('user_id', user.id)
         .single()
 
+      const seller = sellerData as { id: string } | null
       if (!seller) {
         setError('No seller profile found for admin user. Create one in the database.')
         setSaving(false)
@@ -112,6 +115,7 @@ export default function AdminNewProductPage() {
 
       const slug = slugify(name)
 
+      // @ts-expect-error - Supabase type inference limitation with insert operations
       const { error: insertError } = await supabase.from('products').insert({
         seller_id: seller.id,
         category_id: categoryId,

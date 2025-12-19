@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
+import { User } from '@/types'
 
 interface AdminProduct {
   id: string
@@ -43,7 +44,8 @@ export default function AdminProductsPage() {
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.role !== 'admin') {
+    const userProfile = profile as User | null
+    if (!userProfile || userProfile.role !== 'admin') {
       router.push('/dashboard')
       return
     }

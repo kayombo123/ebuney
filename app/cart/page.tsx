@@ -36,14 +36,15 @@ export default function CartPage() {
         .eq('user_id', user.id)
         .single()
 
-      if (cart && cart.id) {
+      const cartData = cart as { id: string } | null
+      if (cartData && cartData.id) {
         const { data: items } = await supabase
           .from('cart_items')
           .select(`
             *,
             product:products(*)
           `)
-          .eq('cart_id', (cart as { id: string }).id)
+          .eq('cart_id', cartData.id)
 
         if (items) {
           setCartItems(items as (CartItem & { product?: Product })[])
@@ -63,6 +64,7 @@ export default function CartPage() {
     try {
       const { error } = await supabase
         .from('cart_items')
+        // @ts-expect-error - Supabase type inference limitation with update operations
         .update({ quantity: newQuantity })
         .eq('id', itemId)
 
@@ -95,7 +97,9 @@ export default function CartPage() {
   }
 
   const subtotal = cartItems.reduce((sum, item) => {
-    return sum + (item.product?.price || 0) * item.quantity
+    const product = item.product as any
+    const price = product?.price || product?.buy_it_now_price || product?.starting_bid || 0
+    return sum + price * item.quantity
   }, 0)
 
   const shipping = 0 // Free shipping by default
@@ -165,13 +169,8 @@ export default function CartPage() {
                             {product.name}
                           </h3>
                         </Link>
-                        {product.seller && (
-                          <p className="text-sm text-gray-500 mb-2">
-                            by {product.seller.business_name}
-                          </p>
-                        )}
                         <p className="text-lg font-bold text-gray-900 mb-4">
-                          {formatCurrency(product.price, product.currency)}
+                          {formatCurrency((product as any).price || (product as any).buy_it_now_price || product.buy_it_now_price || product.starting_bid, product.currency)}
                         </p>
 
                         <div className="flex items-center justify-between">
@@ -191,7 +190,7 @@ export default function CartPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              disabled={updating === item.id || (product.stock_quantity < item.quantity + 1)}
+                              disabled={updating === item.id || ((product as any).stock_quantity != null && (product as any).stock_quantity < item.quantity + 1)}
                             >
                               <Plus className="h-4 w-4" />
                             </Button>

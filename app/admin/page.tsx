@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { User, Seller, Product, Order } from '@/types'
+import { User, Product, Order } from '@/types'
 import { formatCurrency } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,13 @@ export default function AdminDashboardPage() {
     totalOrders: 0,
     totalRevenue: 0,
   })
-  const [pendingSellers, setPendingSellers] = useState<Seller[]>([])
+  const [pendingSellers, setPendingSellers] = useState<Array<{
+    id: string
+    business_name: string
+    business_description: string | null
+    created_at: string
+    is_verified: boolean
+  }>>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = createClient()
@@ -113,7 +119,13 @@ export default function AdminDashboardPage() {
       })
 
       if (pendingSellersData) {
-        setPendingSellers(pendingSellersData as Seller[])
+        setPendingSellers(pendingSellersData as Array<{
+          id: string
+          business_name: string
+          business_description: string | null
+          created_at: string
+          is_verified: boolean
+        }>)
       }
     } catch (error) {
       console.error('Error fetching stats:', error)

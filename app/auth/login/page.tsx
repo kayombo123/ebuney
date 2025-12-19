@@ -55,14 +55,15 @@ export default function LoginPage() {
             role: 'buyer',
           })
         } else {
+          const profile = existingProfile as { id: string; full_name: string | null; phone: string | null; role: string | null } | null
           const updates: Record<string, any> = {}
-          if (fullName && fullName !== existingProfile.full_name) {
+          if (fullName && fullName !== profile?.full_name) {
             updates.full_name = fullName
           }
-          if (phone && phone !== existingProfile.phone) {
+          if (phone && phone !== profile?.phone) {
             updates.phone = phone
           }
-          if (!existingProfile.role) {
+          if (!profile?.role) {
             updates.role = 'buyer'
           }
 

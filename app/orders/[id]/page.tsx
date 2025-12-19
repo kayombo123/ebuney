@@ -13,9 +13,6 @@ import { Button } from '@/components/ui/button'
 import { ORDER_STATUS_LABELS, DELIVERY_STATUS_LABELS, PAYMENT_METHODS } from '@/lib/constants'
 import { ArrowLeft, Package, CreditCard, Truck } from 'lucide-react'
 
-// Cloudflare Pages requires edge runtime for dynamic routes
-export const runtime = 'edge'
-
 export default function OrderDetailPage() {
   const params = useParams()
   const router = useRouter()

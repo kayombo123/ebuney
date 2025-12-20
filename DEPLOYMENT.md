@@ -53,7 +53,29 @@ npm start
 
 Test that the build works before deploying.
 
-## Step 4: Deploy to Vercel (Recommended)
+## Step 4: Deployment Options
+
+### Option A: AWS Amplify (Recommended for Windows users)
+
+AWS Amplify is excellent for Next.js apps and works perfectly on Windows since builds happen on AWS servers.
+
+**See detailed guide**: [DEPLOYMENT_AWS_AMPLIFY.md](./DEPLOYMENT_AWS_AMPLIFY.md)
+
+Quick steps:
+1. Push code to GitHub
+2. Go to [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
+3. Connect your Git repository
+4. Add environment variables
+5. Deploy (builds automatically on AWS)
+
+**Benefits:**
+- ✅ Native Next.js SSR support (no adapters needed)
+- ✅ Works on Windows (builds on AWS Linux servers)
+- ✅ Automatic deployments on Git push
+- ✅ Free SSL and custom domains
+- ✅ Generous free tier
+
+### Option B: Deploy to Vercel
 
 1. **Push to GitHub**
    ```bash
@@ -72,6 +94,12 @@ Test that the build works before deploying.
    - In Vercel project settings, add your domain
    - Update DNS records as instructed
    - Update Supabase auth redirect URLs
+
+### Option C: Cloudflare Pages
+
+**Note**: Requires WSL or Linux for local builds, or Git-based deployment.
+
+**See detailed guide**: [DEPLOYMENT_CLOUDFLARE.md](./DEPLOYMENT_CLOUDFLARE.md)
 
 ## Step 5: Alternative Deployment Options
 

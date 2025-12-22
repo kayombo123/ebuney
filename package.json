@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:cloudflare": "next build && npx --yes @cloudflare/next-on-pages@1.13.16",
+    "deploy:cloudflare": "npm run build:cloudflare && npx wrangler pages deploy .vercel/output/static --project-name=ebuneyzm",
     "start": "next start",
     "preview": "npx wrangler pages dev .vercel/output/static --compatibility-date=2024-01-01",
     "lint": "eslint"

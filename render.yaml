@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: ebuney
+    runtime: node
+    plan: starter
+    nodeVersion: 20
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+    healthCheckPath: /
+    autoDeploy: true
+
+

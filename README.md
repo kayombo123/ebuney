@@ -36,7 +36,7 @@ A production-ready, multi-vendor e-commerce marketplace platform built specifica
 - **Frontend**: Next.js 16 (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS 4
 - **Backend**: Supabase (PostgreSQL, Auth, RLS, Edge Functions)
-- **Hosting**: Vercel-ready (or any Node.js hosting)
+- **Hosting**: Render (Web Service)
 
 ## Getting Started
 
@@ -44,6 +44,7 @@ A production-ready, multi-vendor e-commerce marketplace platform built specifica
 
 - Node.js 18+ and npm
 - Supabase account and project
+- Render account (for deployment)
 
 ### Installation
 
@@ -59,12 +60,14 @@ npm install
 ```
 
 3. Set up environment variables:
+
+Create `.env.local` file:
 ```bash
 cp .env.local.example .env.local
 ```
 
 Edit `.env.local` and add your Supabase credentials:
-```
+```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
@@ -137,6 +140,7 @@ ebuney/
 │   ├── schema.sql        # Database schema
 │   └── rls.sql           # Row Level Security policies
 ├── types/                # TypeScript type definitions
+├── render.yaml           # Render deployment configuration
 └── public/               # Static assets
 ```
 
@@ -174,35 +178,40 @@ ebuney/
 
 ## Deployment
 
-### Cloudflare Pages (Recommended for Global CDN)
+### Render (Recommended)
 
-See [DEPLOYMENT_CLOUDFLARE.md](./DEPLOYMENT_CLOUDFLARE.md) for detailed instructions.
+Ebuney is configured to deploy seamlessly to Render. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
-Quick steps:
-1. Install dependencies: `npm install`
-2. Push code to GitHub
-3. Connect repository to Cloudflare Pages
-4. Set build command: `npm run build:cloudflare`
-5. Set build output: `.vercel/output/static`
-6. Add environment variables in Cloudflare dashboard
-7. Deploy
-
-### Vercel (Alternative)
+**Quick Deployment Steps:**
 
 1. Push your code to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
+2. Connect your repository to Render
+3. Render will automatically detect the `render.yaml` configuration
+4. Add environment variables in Render dashboard:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+5. Deploy
 
-### Other Platforms
+**Render Benefits:**
+- ✅ Automatic deployments on Git push
+- ✅ Free SSL certificates
+- ✅ Custom domain support
+- ✅ Automatic scaling
+- ✅ Health checks and monitoring
+- ✅ Generous free tier (with some limitations)
+- ✅ Easy environment variable management
 
-The app can be deployed to any Node.js hosting platform:
+Your app will be automatically deployed and available at a Render URL like: `https://ebuney.onrender.com`
+
+### Alternative Platforms
+
+The app can be deployed to any Node.js hosting platform that supports Next.js:
+- Vercel
 - Railway
-- Render
 - DigitalOcean App Platform
 - AWS Amplify
 
-Ensure environment variables are set in your hosting platform.
+Ensure environment variables are set in your hosting platform and configure build/start commands appropriately.
 
 ## Security Considerations
 
@@ -217,7 +226,7 @@ Ensure environment variables are set in your hosting platform.
 - [ ] Set up Supabase Storage for product images
 - [ ] Configure payment gateway integrations
 - [ ] Set up email notifications (Supabase Edge Functions)
-- [ ] Configure domain and SSL
+- [ ] Configure custom domain and SSL on Render
 - [ ] Set up analytics
 - [ ] Configure backup strategy
 - [ ] Load testing
